@@ -5,7 +5,7 @@ from galileo.controller.ping import PingController
 class PingAppClient(OffloadAppClient):
 
     def __init__(self, ping_ctrl: PingController, parameters=None):
-        self.wifi_ctrl = ping_ctrl
+        self.ping_ctrl = ping_ctrl
         if parameters:
             method = parameters.get('method', 'get')
             path = parameters.get('path', '/')
@@ -15,7 +15,7 @@ class PingAppClient(OffloadAppClient):
             path = '/'
             kwargs = None
 
-        client = PingOffloadClient(method, path, kwargs)
+        client = PingOffloadClient(ping_ctrl, method, path, kwargs)
 
         super().__init__('http', None, client)
 
@@ -30,8 +30,8 @@ class PingOffloadClient:
 
     def next_request(self):
         # TODO: decide to offload or not
-        wifi_quality = self.ping_ctrl.get_ping()
-        if wifi_quality < 30:
+        ping = self.ping_ctrl.get_ping()
+        if ping < 30:
             offload = True
         else:
             offload = False

@@ -15,7 +15,7 @@ class WifiAppClient(OffloadAppClient):
             path = '/'
             kwargs = None
 
-        client = WifiOffloadClient(method, path, kwargs)
+        client = WifiOffloadClient(wifi_ctrl, method, path, kwargs)
 
         super().__init__('http', None, client)
 
