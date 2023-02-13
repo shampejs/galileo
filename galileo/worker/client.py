@@ -12,8 +12,11 @@ from galileodb.model import RequestTrace
 from pymq.provider.redis import RedisEventBus
 
 from galileo import util
-from galileo.apps.app import AppClient, DefaultAppClient
+from galileo.apps.app import AppClient, DefaultAppClient, OffloadAppClient
+from galileo.apps.offloading.ping import PingAppClient
+from galileo.apps.offloading.wifi import WifiAppClient
 from galileo.routing import ServiceRequest
+from galileo.routing.offloading import OffloadServiceRequest
 from galileo.worker.api import ClientDescription, ClientConfig, ClientInfo, SetWorkloadCommand, StopWorkloadCommand, \
     WorkloadDoneEvent
 from galileo.worker.context import Context
@@ -119,6 +122,24 @@ class RequestGenerator:
 
             yield factory()
 
+class OffloadAppClientRequestFactory:
+
+    def __init__(self, service: str, client: OffloadAppClient) -> None:
+        super().__init__()
+        self.service = service
+        self.client = client
+
+    def create_request(self) -> OffloadServiceRequest:
+        req = self.client.next_request()
+        service_request = OffloadServiceRequest(self.service, req.endpoint, req.method, req.offload, **req.kwargs)
+
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug('client %s created request %s', self.client.name, service_request.__dict__)
+
+        return service_request
+
+    def __call__(self, *args, **kwargs):
+        return self.create_request()
 
 class AppClientRequestFactory:
 
@@ -273,9 +294,20 @@ class Client:
         self.request_generator.pause()
 
     def _create_request_factory(self):
+        load_wifi_client = True
+        load_ping_client = True
+
         if self.cfg.client:
             app_loader = self.ctx.create_app_loader()
             app = app_loader.load(self.cfg.client, self.cfg.parameters)
+        elif load_ping_client:
+            ping_ctrl = self.ctx.create_ping_ctrl()
+            app = PingAppClient(ping_ctrl)
+            return OffloadAppClientRequestFactory(self.cfg.service, app)
+        elif load_wifi_client:
+            wifi_ctrl = self.ctx.create_wifi_ctrl()
+            app = WifiAppClient(wifi_ctrl)
+            return OffloadAppClientRequestFactory(self.cfg.service, app)
         else:
             app = DefaultAppClient(self.cfg.parameters)
 

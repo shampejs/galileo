@@ -11,6 +11,30 @@ class AppRequest(NamedTuple):
     kwargs: dict
 
 
+class OffloadAppRequest(NamedTuple):
+    app_name: str
+    method: str
+    endpoint: str
+    offload: bool
+    kwargs: dict
+
+
+class OffloadAppClient:
+
+    def __init__(self, name, context, module) -> None:
+        super().__init__()
+        self.name = name
+        self.context = context
+        self.module = module
+
+    def __getattr__(self, item):
+        return getattr(self.module, item)
+
+    def next_request(self) -> OffloadAppRequest:
+        method, endpoint, offload, kwargs = self.module.next_request()
+        return OffloadAppRequest(self.name, method, endpoint, offload, kwargs or {})
+
+
 class AppClient:
 
     def __init__(self, name, context, module) -> None:
