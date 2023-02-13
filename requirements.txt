@@ -1,6 +1,6 @@
 galileo-db==0.10.5.dev2
 edgerun-galileo-faas>=0.0.1.dev8
-edgerun-faas>=0.0.1.dev3
+edgerun-faas>=0.0.1.dev4
 telemc>=0.3.0
 gunicorn==19.9.0
 falcon==2.0.0
