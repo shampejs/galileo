@@ -126,6 +126,7 @@ class OffloadAppClientRequestFactory:
 
     def __init__(self, service: str, client: OffloadAppClient) -> None:
         super().__init__()
+        print("-- OffloadAppClientRequestFactory --")
         self.service = service
         self.client = client
 

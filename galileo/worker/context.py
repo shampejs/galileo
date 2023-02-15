@@ -126,7 +126,8 @@ class Context:
     def create_router(self, router_type=None):
         if router_type is None:
             router_type = self.env.get('galileo_router_type', 'CachingSymmetryHostRouter')
-
+        router_type = 'CachingSymmetryHostRouter'
+        print("Router_type:", router_type)
         if router_type == 'SymmetryServiceRouter':
             rtable = RedisRoutingTable(self.create_redis())
             balancer = WeightedRoundRobinBalancer(rtable)
@@ -214,7 +215,7 @@ class Context:
             rds = RedisClient.from_env()
             metrics = self.setup_metrics()
             container_metrics = []
-            node_metrics = ['signal', 'ping_avg']
+            node_metrics = ['signal', 'ping_avg', 'cpu']
             daemon = self.setup_daemon(rds, metrics, container_metrics, node_metrics)
             daemon.start()
             self.daemon = daemon

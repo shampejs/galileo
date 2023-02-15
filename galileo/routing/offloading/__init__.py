@@ -26,6 +26,7 @@ class OffloadRouter(Router):
         logger.debug('forwarding request %s %s', req.method, url)
 
         req.sent = time.time()
+        print("external", req.method, url, **req.kwargs)
         response = requests.request(req.method, url, **req.kwargs)
         req.done = req.sent
 

@@ -8,10 +8,10 @@ class WifiController:
         self.telemetry_service = telemetry_service
 
     def get_wifi_quality(self):
-        node = ''
+        node = 'localhost.localdomain'
         metric = 'signal'
         signals: pd.DataFrame = self.telemetry_service.get_node_resource(node, metric)
-        return signals['value'].mean()
+        return signals['value'][-3:].mean()
 
     def switch_wifi(self):
         raise NotImplementedError()

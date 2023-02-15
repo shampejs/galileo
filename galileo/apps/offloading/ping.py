@@ -29,8 +29,9 @@ class PingOffloadClient:
         self.parameters = parameters or {}
 
     def next_request(self):
-        # TODO: decide to offload or not
         ping = self.ping_ctrl.get_ping()
+        print(ping)
+        # TODO back to 30
         if ping < 30:
             offload = True
         else:
