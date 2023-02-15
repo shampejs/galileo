@@ -126,7 +126,6 @@ class OffloadAppClientRequestFactory:
 
     def __init__(self, service: str, client: OffloadAppClient) -> None:
         super().__init__()
-        print("-- OffloadAppClientRequestFactory --")
         self.service = service
         self.client = client
 
@@ -295,7 +294,7 @@ class Client:
         self.request_generator.pause()
 
     def _create_request_factory(self):
-        load_wifi_client = True
+        load_wifi_client = False
         load_ping_client = True
 
         if self.cfg.client:
@@ -303,11 +302,11 @@ class Client:
             app = app_loader.load(self.cfg.client, self.cfg.parameters)
         elif load_ping_client:
             ping_ctrl = self.ctx.create_ping_ctrl()
-            app = PingAppClient(ping_ctrl)
+            app = PingAppClient(ping_ctrl, self.cfg.parameters)
             return OffloadAppClientRequestFactory(self.cfg.service, app)
         elif load_wifi_client:
             wifi_ctrl = self.ctx.create_wifi_ctrl()
-            app = WifiAppClient(wifi_ctrl)
+            app = WifiAppClient(wifi_ctrl, self.cfg.parameters)
             return OffloadAppClientRequestFactory(self.cfg.service, app)
         else:
             app = DefaultAppClient(self.cfg.parameters)
